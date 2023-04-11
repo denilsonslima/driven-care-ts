@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model addresses {
+  id         Int       @id(map: "addresses_pk") @default(autoincrement())
+  street     String
+  number     Int
+  zip_code   String    @db.VarChar(8)
+  district   String
+  complement String?
+  citie_id   Int
+  cities     cities    @relation(fields: [citie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "addresses_fk0")
+  doctors    doctors[]
+}
+
+model appointment {
+  id        Int      @id(map: "appointment_pk") @default(autoincrement())
+  user_id   Int
+  doctor_id Int
+  date      DateTime @default(dbgenerated("'2023-04-11 01:26:41.345322-03'::timestamp with time zone")) @db.Timestamptz(6)
+  status    String   @db.VarChar(20)
+  users     users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "appointment_fk0")
+  doctors   doctors  @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "appointment_fk1")
+}
+
+model cities {
+  id        Int         @id(map: "cities_pk") @default(autoincrement())
+  name      String
+  state_id  Int
+  addresses addresses[]
+  states    states      @relation(fields: [state_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cities_fk0")
+}
+
+model doctors {
+  id          Int           @id(map: "doctors_pk") @default(autoincrement())
+  user_id     Int
+  speciality  String        @db.VarChar(100)
+  address_id  Int
+  created_at  DateTime      @default(dbgenerated("'2023-04-11 01:26:41.345322-03'::timestamp with time zone")) @db.Timestamptz(6)
+  appointment appointment[]
+  users       users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "doctors_fk0")
+  addresses   addresses     @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "doctors_fk1")
+}
+
+model sessions {
+  id         Int      @id(map: "sessions_pk") @default(autoincrement())
+  token      String   @unique
+  user_id    Int
+  created_at DateTime @default(dbgenerated("'2023-04-11 01:26:41.345322-03'::timestamp with time zone")) @db.Timestamptz(6)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sessions_fk0")
+}
+
+model states {
+  id     Int      @id(map: "states_pk") @default(autoincrement())
+  name   String
+  cities cities[]
+}
+
+model users {
+  id          Int           @id(map: "users_pk") @default(autoincrement())
+  name        String        @db.VarChar(255)
+  email       String        @unique @db.VarChar(255)
+  password    String        @db.VarChar(100)
+  is_doctor   Boolean       @default(false)
+  created_at  DateTime      @default(dbgenerated("'2023-04-11 01:26:41.345322'::timestamp without time zone")) @db.Timestamp(6)
+  appointment appointment[]
+  doctors     doctors[]
+  sessions    sessions[]
+}
