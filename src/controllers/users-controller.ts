@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import httpStatus from "http-status";
-import { validateUser } from "../repositories";
+import { userSignIn, validateUser } from "../repositories";
 import authService from "../services/users-service.js";
 
 async function createUser(req: Request, res: Response, next: NextFunction) {
@@ -13,6 +13,17 @@ async function createUser(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+async function userSignIn(req: Request, res: Response, next: NextFunction) {
+  const data = req.body as userSignIn
+  try {
+    const token = await authService.userSignIn(data)
+    res.status(httpStatus.OK).send({token})
+  } catch (error) {
+    next(error)
+  }
+}
+
 export default {
-    createUser
+    createUser,
+    userSignIn
 }

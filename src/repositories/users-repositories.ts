@@ -23,10 +23,21 @@ async function findByEmail(email: string): Promise<users> {
   });
 }
 
+async function createSessions(token: string, user_id: number): Promise<sessions> {
+  return prisma.sessions.create({
+    data: {
+      token,
+      user_id
+    }, 
+  })
+}
+
 export type validateUser = Omit<users, "created_at" | "id" | 'is_doctor'>;
+export type userSignIn = Omit<validateUser, 'name'>
 
 export default {
   findByToken,
   createUser,
-  findByEmail
+  findByEmail,
+  createSessions
 };
