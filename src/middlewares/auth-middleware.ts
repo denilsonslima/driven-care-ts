@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import authService from "../services/auth-service.js";
+import usersRepositories from "../repositories/users-repositories.js";
 
 async function authMiddleware(
   req: AuthenticatedRequest,
@@ -14,7 +14,7 @@ async function authMiddleware(
 
     if (!Bearer || !token || Bearer !== "Bearer") return res.sendStatus(401);
 
-    const user = await authService.findByToken(token);
+    const user = await usersRepositories.findByToken(token);
     if (!user) return res.sendStatus(401);
 
     req.userId = user.id;
