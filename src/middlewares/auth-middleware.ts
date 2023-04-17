@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { findByToken } from "../services/index.js";
+import authService from "../services/auth-service.js";
 
 async function authMiddleware(
   req: AuthenticatedRequest,
@@ -14,7 +14,7 @@ async function authMiddleware(
 
     if (!Bearer || !token || Bearer !== "Bearer") return res.sendStatus(401);
 
-    const user = await findByToken(token);
+    const user = await authService.findByToken(token);
     if (!user) return res.sendStatus(401);
 
     req.userId = user.id;
